@@ -1,20 +1,34 @@
 import argparse
 
+OPPONENT_ROCK = "A"
+OPPONENT_PAPER = "B"
+OPPONENT_SCISSORS = "C"
 
-def read_input(file_name):
-    with open(file_name, "r") as f:
-        return f.read().splitlines()
+PLAYER_ROCK = "X"
+PLAYER_PAPER = "Y"
+PLAYER_SCISSORS = "Z"
 
+SCORES = {
+    PLAYER_ROCK: 1,
+    PLAYER_PAPER: 2,
+    PLAYER_SCISSORS: 3,
+    OPPONENT_ROCK: 1,
+    OPPONENT_PAPER: 2,
+    OPPONENT_SCISSORS: 3,
+}
 
-SCORES = {"X": 1, "Y": 2, "Z": 3, "A": 1, "B": 2, "C": 3}
+WINNING_CONDITIONS = {OPPONENT_SCISSORS: PLAYER_ROCK, OPPONENT_PAPER: PLAYER_SCISSORS, OPPONENT_ROCK: PLAYER_PAPER}
 
-WINNING_CONDITIONS_OPP_TO_PLAYER = {"C": "X", "B": "Z", "A": "Y"}
-
-LOSING_CONDITIONS_OPP_TO_PLAYER = {"A": "Z", "B": "X", "C": "Y"}
+LOSING_CONDITIONS = {OPPONENT_ROCK: PLAYER_SCISSORS, OPPONENT_PAPER: PLAYER_ROCK, OPPONENT_SCISSORS: PLAYER_PAPER}
 
 WINNING_SCORE = 6
 DRAW_SCORE = 3
 LOSE_SCORE = 0
+
+
+def read_input(file_name):
+    with open(file_name, "r") as f:
+        return f.read().splitlines()
 
 
 def calculate_part1_score(rounds: list[str]) -> int:
@@ -25,7 +39,7 @@ def calculate_part1_score(rounds: list[str]) -> int:
         opponent_turn, player_turn = r.split(" ")
         opponent_score = SCORES[opponent_turn]
         player_score = SCORES[player_turn]
-        turn_required_to_win = WINNING_CONDITIONS_OPP_TO_PLAYER[opponent_turn]
+        turn_required_to_win = WINNING_CONDITIONS[opponent_turn]
 
         if turn_required_to_win == player_turn:
             outcome_score += WINNING_SCORE
@@ -40,41 +54,34 @@ def calculate_part1_score(rounds: list[str]) -> int:
 def calculate_part2_score(rounds: list[str]) -> int:
     outcome_score = 0
     selection_score = 0
+
     for r in rounds:
         opponent_turn, player_turn = r.split(" ")
 
-        if player_turn == "Y":
+        if player_turn == PLAYER_PAPER:
             selection_score += SCORES[opponent_turn]
             outcome_score += DRAW_SCORE
-
-        elif player_turn == "Z":
-            turn_required_to_win = WINNING_CONDITIONS_OPP_TO_PLAYER[opponent_turn]
+        elif player_turn == PLAYER_SCISSORS:
+            turn_required_to_win = WINNING_CONDITIONS[opponent_turn]
             selection_score += SCORES[turn_required_to_win]
             outcome_score += WINNING_SCORE
         else:
-            turn_required_to_lose = LOSING_CONDITIONS_OPP_TO_PLAYER[opponent_turn]
+            turn_required_to_lose = LOSING_CONDITIONS[opponent_turn]
             selection_score += SCORES[turn_required_to_lose]
 
     return selection_score + outcome_score
 
 
 def solve_part1(file_name: str) -> int:
-    rounds = read_input(file_name)
-    score = calculate_part1_score(rounds)
-    return score
+    return calculate_part1_score(read_input(file_name))
 
 
 def solve_part2(file_name: str) -> int:
-    rounds = read_input(file_name)
-    score = calculate_part2_score(rounds)
-    return score
+    return calculate_part2_score(read_input(file_name))
 
 
 def solve(file_name: str, part: int = 1) -> int:
-    if part == 1:
-        return solve_part1(file_name)
-    else:
-        return solve_part2(file_name)
+    return part == 1 and solve_part1(file_name) or solve_part2(file_name)
 
 
 def cli():
