@@ -2,7 +2,7 @@ import argparse
 from collections import defaultdict
 
 
-def read_input(file_name):
+def read_input(file_name: str) -> list[str]:
     with open(file_name, "r") as f:
         return f.read().splitlines()
 
@@ -28,9 +28,7 @@ def get_elves_calories(calories: list[str]) -> list[list]:
 
 def most_calories_carried(calories: list[str], n=1) -> int:
     elf_calories = get_elves_calories(calories)
-    calories_carried = sorted(
-        [sum(calories) for calories in elf_calories], reverse=True
-    )
+    calories_carried = sorted([sum(calories) for calories in elf_calories], reverse=True)
     calories_sum = sum(calories_carried[:n])
 
     return calories_sum
