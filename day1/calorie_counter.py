@@ -7,14 +7,14 @@ def read_input(file_name):
         return f.read().splitlines()
 
 
-def get_elves_calories(calories):
-    calories = iter(calories)
+def get_elves_calories(calories: list[str]) -> list[list]:
+    calories_iter = iter(calories)
     elf_number = 1
 
     elf_calories = defaultdict(list)
     while True:
         try:
-            c = next(calories)
+            c = next(calories_iter)
         except StopIteration:
             break
 
@@ -26,29 +26,30 @@ def get_elves_calories(calories):
     return [calories for elf, calories in elf_calories.items()]
 
 
-def most_calories_carried(calories, n=1):
+def most_calories_carried(calories: list[str], n=1) -> int:
     elf_calories = get_elves_calories(calories)
     calories_carried = sorted(
         [sum(calories) for calories in elf_calories], reverse=True
     )
-    most = sum(calories_carried[:n])
+    calories_sum = sum(calories_carried[:n])
 
-    return most
+    return calories_sum
 
 
-def main(n):
-    calories = read_input("input.txt")
-    calories_carried = most_calories_carried(calories, n)
-    print(f"Total calories carried: {calories_carried}")
+def solve(file_name: str, n: int = 1):
+    calories = read_input(file_name)
+    return most_calories_carried(calories, n)
 
 
 def cli():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--n", type=int, default=1, help="Top most calories")
+    parser.add_argument("--file", type=str, default="input.txt")
+    parser.add_argument("--n", type=int, default=1)
 
     args = parser.parse_args()
 
-    main(args.n)
+    result = solve(file_name=args.file, n=args.n)
+    print(f"Result: {result}")
 
 
 if __name__ == "__main__":
