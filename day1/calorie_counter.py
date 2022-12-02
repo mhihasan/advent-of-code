@@ -1,9 +1,11 @@
 import argparse
+import os.path
 from collections import defaultdict
 
 
 def read_input(file_name: str) -> list[str]:
-    with open(file_name, "r") as f:
+    file_path = os.path.join(os.path.dirname(__file__), file_name)
+    with open(file_path, "r") as f:
         return f.read().splitlines()
 
 
