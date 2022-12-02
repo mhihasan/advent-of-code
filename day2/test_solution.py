@@ -1,11 +1,11 @@
-from day2.solution import solve
+from day2.solution import calculate_part1_score, calculate_part2_score
+
+demo_input = ["A Y", "B X", "C Z"]
 
 
 def test_solves_part1():
-    assert solve("demo_input.txt", part=1) == 15
-    assert solve("input.txt", part=1) == 11603
+    assert calculate_part1_score(demo_input) == 15
 
 
 def test_solves_part2():
-    assert solve("demo_input.txt", part=2) == 12
-    assert solve("input.txt", part=2) == 12725
+    assert calculate_part2_score(demo_input) == 12

@@ -72,16 +72,9 @@ def calculate_part2_score(rounds: list[str]) -> int:
     return selection_score + outcome_score
 
 
-def solve_part1(file_name: str) -> int:
-    return calculate_part1_score(read_input(file_name))
-
-
-def solve_part2(file_name: str) -> int:
-    return calculate_part2_score(read_input(file_name))
-
-
 def solve(file_name: str, part: int = 1) -> int:
-    return part == 1 and solve_part1(file_name) or solve_part2(file_name)
+    moves = read_input(file_name)
+    return part == 1 and calculate_part1_score(moves) or calculate_part2_score(moves)
 
 
 def cli():

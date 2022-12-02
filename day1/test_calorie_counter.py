@@ -1,20 +1,12 @@
-from .calorie_counter import most_calories_carried, solve
+from .calorie_counter import most_calories_carried
 
 
-def test_returns_most_calories():
-    input_calories = ["1", "2", "", "2", "", "2", "3", "", "3", "4"]
-    max_calories = most_calories_carried(input_calories)
-    assert max_calories == 7
-
-    max_calories = most_calories_carried(input_calories, 3)
-    assert max_calories == 15
+demo_input = ["1000", "2000", "3000", "", "4000", "", "5000", "6000", "", "7000", "8000", "9000", "", "10000"]
 
 
 def test_solves_part1():
-    assert solve("demo_input.txt", n=1) == 24000
-    assert solve("input.txt", n=1) == 75622
+    assert most_calories_carried(demo_input, n=1) == 24000
 
 
 def test_solves_part2():
-    assert solve("demo_input.txt", n=3) == 45000
-    assert solve("input.txt", n=3) == 213159
+    assert most_calories_carried(demo_input, n=3) == 45000
