@@ -27,7 +27,6 @@ In this example, if you were to follow the strategy guide, you would get a total
 
 What would your total score be if everything goes exactly according to your strategy guide?
 
-Your puzzle answer was 11603.
 
 The first half of this puzzle is complete! It provides one gold star: *
 

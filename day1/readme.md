@@ -39,8 +39,6 @@ In case the Elves get hungry and need extra snacks, they need to know which Elf 
 
 Find the Elf carrying the most Calories. How many total Calories is that Elf carrying?
 
-Your puzzle answer was 75622.
-
 The first half of this puzzle is complete! It provides one gold star: *
 
 ## Part Two
