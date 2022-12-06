@@ -24,4 +24,4 @@ def solve(file_name, part=1):
 
 
 if __name__ == "__main__":
-    solve("demo", part=1)
+    solve("demo_input.txt", part=1)
