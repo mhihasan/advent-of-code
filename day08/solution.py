@@ -1,15 +1,18 @@
 from day08.file_parser import read_input, parse_grid
 
+UP = (-1, 0)
+DOWN = (1, 0)
+LEFT = (0, -1)
+RIGHT = (0, 1)
+DIRECTIONS = [UP, DOWN, LEFT, RIGHT]
+
 
 def _is_valid_cell(i, j, n):
     return 0 <= i < n and 0 <= j < n
 
 
-def is_visible(grid, val, row, col):
-    n = len(grid)
-    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
-
-    for direction in directions:
+def is_tree_visible(grid, val, row, col, grid_len):
+    for direction in DIRECTIONS:
         visible = True
         delta_i, delta_j = direction
         i, j = row, col
@@ -17,7 +20,7 @@ def is_visible(grid, val, row, col):
         while True:
             i += delta_i
             j += delta_j
-            if not _is_valid_cell(i, j, n):
+            if not _is_valid_cell(i, j, grid_len):
                 break
 
             if grid[i][j] >= val:
@@ -30,27 +33,24 @@ def is_visible(grid, val, row, col):
     return False
 
 
-def cal_score(grid, val, row, col):
-    n = len(grid)
-    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
-
+def calculate_scenic_score(grid, val, row, col, grid_len):
     score = 1
-    for direction in directions:
+    for direction in DIRECTIONS:
         delta_i, delta_j = direction
         i, j = row, col
 
         while True:
             i += delta_i
             j += delta_j
-            if not _is_valid_cell(i, j, n):
+            if not _is_valid_cell(i, j, grid_len):
                 if i < 0:
                     i = 0
-                elif i > n - 1:
-                    i = n - 1
+                elif i > grid_len - 1:
+                    i = grid_len - 1
                 if j < 0:
                     j = 0
-                elif j > n - 1:
-                    j = n - 1
+                elif j > grid_len - 1:
+                    j = grid_len - 1
                 break
 
             if grid[i][j] >= val:
@@ -63,10 +63,11 @@ def cal_score(grid, val, row, col):
 
 def solve_part1(grid):
     visible_cells = []
+    n = len(grid)
 
     for i in range(1, len(grid) - 1):
         for j in range(1, len(grid[i]) - 1):
-            if is_visible(grid, grid[i][j], i, j):
+            if is_tree_visible(grid, grid[i][j], i, j, n):
                 visible_cells.append({"value": grid[i][j], "row": i, "col": j})
 
     visible_from_edge = len(grid) * 2 + (len(grid[0]) - 2) * 2
@@ -74,11 +75,11 @@ def solve_part1(grid):
 
 
 def solve_part2(grid):
+    n = len(grid)
     scores = []
     for i in range(1, len(grid) - 1):
         for j in range(1, len(grid[i]) - 1):
-            if is_visible(grid, grid[i][j], i, j):
-                scores.append(cal_score(grid, grid[i][j], i, j))
+            scores.append(calculate_scenic_score(grid, grid[i][j], i, j, n))
 
     return max(scores)
 
