@@ -7,5 +7,7 @@ def test_solves_part1():
 
 
 def test_solves_part2():
-    assert solve("demo_input.txt", part=2) == 1
-    assert solve("input.txt", part=2) == 2
+    assert solve("demo_input.txt", part=2, total_round=20) == 10197
+    assert solve("demo_input.txt", part=2, total_round=100) == 260099
+    assert solve("demo_input.txt", part=2, total_round=10000) == 1
+    # assert solve_part2("input.txt", part=2) == 2
