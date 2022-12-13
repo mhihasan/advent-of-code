@@ -1,12 +1,15 @@
+import math
+from functools import cmp_to_key
+
 from day13.file_parser import parse_input
 
 
 def compare(left, right):
     if isinstance(left, int) and isinstance(right, int):
         if left == right:
-            return
+            return 0
 
-        return {"right_order": left < right}
+        return -1 if left < right else 1
 
     if isinstance(left, list) and isinstance(right, int):
         right = [right]
@@ -25,29 +28,33 @@ def compare(left, right):
         j += 1
 
     if i == l_len and j == r_len:
-        return
+        return 0
 
-    return {"right_order": i == l_len and j < r_len}
+    return -1 if i == l_len and j < r_len else 1
 
 
 def solve_part1(pairs):
     indices = set()
     for i, pair in enumerate(pairs):
         r = compare(pair[0], pair[1])
-        if r["right_order"]:
+        if r == -1:
             indices.add(i + 1)
 
     return sum(indices)
 
 
-def solve_part2(pairs):
-    indices = set()
-    for i, pair in enumerate(pairs):
-        r = compare(pair[0], pair[1])
-        if r["right_order"]:
-            indices.add(i + 1)
+def solve_part2(pairs, divider_packets=None):
+    packets = []
+    for pair in pairs:
+        packets.extend(pair)
 
-    return sum(indices)
+    if divider_packets is None:
+        divider_packets = [[[2]], [[6]]]
+
+    packets.extend(divider_packets)
+    sorted_packets = sorted(packets, key=cmp_to_key(compare))
+
+    return math.prod([sorted_packets.index(p) + 1 for p in divider_packets])
 
 
 def solve(file_name, part=1):
@@ -60,8 +67,8 @@ def solve(file_name, part=1):
 
 
 if __name__ == "__main__":
-    # solve("demo_input.txt", part=1)
-    solve("input.txt", part=1)
+    solve("demo_input.txt", part=2)
+    # solve("input.txt", part=2)
 
     # index = 29
     # pairs = parse_input("input.txt")

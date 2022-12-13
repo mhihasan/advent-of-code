@@ -15,7 +15,3 @@ def _chunkify(arr, n):
 def parse_input(file_name):
     inputs = [ast.literal_eval(line) for line in read_input(file_name) if line]
     return _chunkify(inputs, n=2)
-
-
-if __name__ == "__main__":
-    parse_input("demo_input.txt")
