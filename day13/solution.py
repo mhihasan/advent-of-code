@@ -1,46 +1,53 @@
 from day13.file_parser import parse_input
 
 
-def is_right_side(left_arr, right_arr):
+def compare(left, right):
+    if isinstance(left, int) and isinstance(right, int):
+        if left == right:
+            return
+
+        return {"right_order": left < right}
+
+    if isinstance(left, list) and isinstance(right, int):
+        right = [right]
+    if isinstance(right, list) and isinstance(left, int):
+        left = [left]
+
     i, j = 0, 0
-    l_len = len(left_arr)
-    r_len = len(right_arr)
+    l_len, r_len = len(left), len(right)
 
     while i < l_len and j < r_len:
-        l_val = left_arr[i]
-        r_val = right_arr[j]
-
-        if isinstance(l_val, int) and isinstance(r_val, int) and l_val != r_val:
-            return l_val < r_val
-        elif isinstance(l_val, list) and isinstance(r_val, list):
-            return is_right_side(l_val, r_val)
-        elif isinstance(l_val, list) and isinstance(r_val, int):
-            return is_right_side(l_val, [r_val])
-        elif isinstance(l_val, int) and isinstance(r_val, list):
-            return is_right_side([l_val], r_val)
+        res = compare(left[i], right[j])
+        if res:
+            return res
 
         i += 1
         j += 1
 
-    if i >= l_len and j <= r_len:
-        return True
+    if i == l_len and j == r_len:
+        return
 
-    return False
+    return {"right_order": i == l_len and j < r_len}
 
 
 def solve_part1(pairs):
     indices = set()
     for i, pair in enumerate(pairs):
-        if is_right_side(pair[0], pair[1]):
+        r = compare(pair[0], pair[1])
+        if r["right_order"]:
             indices.add(i + 1)
 
-    print(indices)
-    print(sum(indices))
     return sum(indices)
 
 
-def solve_part2(inputs):
-    pass
+def solve_part2(pairs):
+    indices = set()
+    for i, pair in enumerate(pairs):
+        r = compare(pair[0], pair[1])
+        if r["right_order"]:
+            indices.add(i + 1)
+
+    return sum(indices)
 
 
 def solve(file_name, part=1):
@@ -53,7 +60,7 @@ def solve(file_name, part=1):
 
 
 if __name__ == "__main__":
-    solve("demo_input.txt", part=1)
+    # solve("demo_input.txt", part=1)
     solve("input.txt", part=1)
 
     # index = 29
