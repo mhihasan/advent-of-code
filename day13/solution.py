@@ -64,13 +64,3 @@ def solve(file_name, part=1):
         return solve_part1(pairs)
 
     return solve_part2(pairs)
-
-
-if __name__ == "__main__":
-    solve("demo_input.txt", part=2)
-    # solve("input.txt", part=2)
-
-    # index = 29
-    # pairs = parse_input("input.txt")
-    # v = is_right_side(pairs[index - 1][0], pairs[index - 1][1])
-    # print(v)
