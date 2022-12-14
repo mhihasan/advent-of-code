@@ -2,7 +2,6 @@ import math
 import os
 import string
 from collections import defaultdict, deque
-from typing import Optional
 
 
 SOURCE_CELL = "S"
@@ -23,20 +22,6 @@ def read_input(file_name: str) -> list[str]:
         return f.read().splitlines()
 
 
-def find_predecessors(predecessor, target: str) -> str:
-    """Finds predecessors of a node, returns "" for nodes in cycle"""
-    path = []
-    current: Optional[str] = target
-    while current is not None:
-        if current in path:
-            return ""
-
-        path.append(f"{current}")
-        current = predecessor.get(current)
-
-    return "|".join(path[::-1])
-
-
 def get_neighbours(grid, current, total_row, total_col):
     neighbours = []
     for direction in [(-1, 0), (1, 0), (0, 1), (0, -1)]:
@@ -45,9 +30,6 @@ def get_neighbours(grid, current, total_row, total_col):
             neighbours.append((adj_row, adj_col))
 
     current_val = grid[current[0]][current[1]]
-    # if current_val == SOURCE_CELL:
-    #     return neighbours
-
     current_elevation = CELL_ELEVATIONS[current_val]
 
     adj_cells = []
@@ -76,8 +58,6 @@ def shortest_path(grid, source, destination):
     while queue:
         current = queue.popleft()
         if current == destination:
-            p = find_predecessors(predecessor, destination)
-            print(p)
             return distance[current]
 
         for neighbour in get_neighbours(grid, current, total_row=total_row, total_col=total_col):
@@ -85,7 +65,6 @@ def shortest_path(grid, source, destination):
                 continue
 
             new_dist = distance[current] + 1
-            # if new_dist < distance[neighbour]:
             distance[neighbour] = new_dist
             visited[neighbour] = True
             predecessor[neighbour] = current
@@ -107,13 +86,21 @@ def solve_part1(grid):
             if grid[i][j] == DEST_CELL and destination is None:
                 destination = (i, j)
 
-    print("source", source, grid[source[0]][source[1]])
-    print("destination", destination, grid[destination[0]][destination[1]])
+    return shortest_path(grid, source, destination)
 
-    res = shortest_path(grid, source, destination)
 
-    print(res)
-    return res
+def solve_part2(grid):
+    destination = None
+    sources = set()
+    for i in range(len(grid)):
+        for j in range(len(grid[0])):
+            if grid[i][j] in ["a", SOURCE_CELL]:
+                sources.add((i, j))
+            if grid[i][j] == DEST_CELL and destination is None:
+                destination = (i, j)
+
+    shorted_paths = [shortest_path(grid, source, destination) for source in sources]
+    return min([step for step in shorted_paths if step > 0])
 
 
 def solve(file_name, part=1):
@@ -123,9 +110,8 @@ def solve(file_name, part=1):
         if v == -1:
             raise Exception("No path exists")
 
-        print("v", v)
         return v
-    # return solve_part2(inputs)
+    return solve_part2(inputs)
 
 
 if __name__ == "__main__":
