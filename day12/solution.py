@@ -1,19 +1,20 @@
-import heapq
+import math
 import os
 import string
-from collections import defaultdict
+from collections import defaultdict, deque
+from typing import Optional
 
-UP = (-1, 0)
-DOWN = (1, 0)
-LEFT = (0, -1)
-RIGHT = (0, 1)
-DIRECTIONS = [UP, DOWN, LEFT, RIGHT]
+
 SOURCE_CELL = "S"
 DEST_CELL = "E"
 
 CELL_ELEVATIONS = {}
+
 for i, ch in enumerate(string.ascii_lowercase):
     CELL_ELEVATIONS[ch] = i + 1
+
+CELL_ELEVATIONS[SOURCE_CELL] = CELL_ELEVATIONS["a"]
+CELL_ELEVATIONS[DEST_CELL] = CELL_ELEVATIONS["z"]
 
 
 def read_input(file_name: str) -> list[str]:
@@ -22,130 +23,97 @@ def read_input(file_name: str) -> list[str]:
         return f.read().splitlines()
 
 
-class Node:
-    def __init__(self, row, col, value, elevation=0, dist=-1):
-        self.row = row
-        self.col = col
-        self.value = value
-        self.elevation = elevation
-        self.dist = dist
-        self.prev = None
+def find_predecessors(predecessor, target: str) -> str:
+    """Finds predecessors of a node, returns "" for nodes in cycle"""
+    path = []
+    current: Optional[str] = target
+    while current is not None:
+        if current in path:
+            return ""
 
-    def __repr__(self):
-        return f"({self.row}, {self.col}): {self.value}"
+        path.append(f"{current}")
+        current = predecessor.get(current)
 
-
-def is_valid_cell(current_row, current_col, total_row, total_col):
-    return 0 <= current_row < total_row and 0 <= current_col < total_col
+    return "|".join(path[::-1])
 
 
-# def invalid_elevation(current, adjacent):
-# return adjacent  > current + 1
-
-
-def find_valid_neighbour_cells(current_node, grid, total_row, total_col):
+def get_neighbours(grid, current, total_row, total_col):
     neighbours = []
+    for direction in [(-1, 0), (1, 0), (0, 1), (0, -1)]:
+        adj_row, adj_col = current[0] + direction[0], current[1] + direction[1]
+        if 0 <= adj_row < total_row and 0 <= adj_col < total_col:
+            neighbours.append((adj_row, adj_col))
 
-    cell_val = grid[current_node.row][current_node.col]
-    current_elevation = CELL_ELEVATIONS[grid[current_node.row][current_node.col].lower()]
+    current_val = grid[current[0]][current[1]]
+    # if current_val == SOURCE_CELL:
+    #     return neighbours
 
-    for direction in DIRECTIONS:
-        adj_row, adj_col = current_node.row + direction[0], current_node.col + direction[1]
+    current_elevation = CELL_ELEVATIONS[current_val]
 
-        if is_valid_cell(adj_row, adj_col, total_row, total_col):
-            adj_cell = grid[adj_row][adj_col]
-            adj_elevation = CELL_ELEVATIONS[adj_cell.lower()]
-            print(f"adj elevation, {adj_row, adj_col}: {adj_elevation}")
+    adj_cells = []
+    for adj in neighbours:
+        adj_val = grid[adj[0]][adj[1]]
+        adj_elevation = CELL_ELEVATIONS[adj_val]
+        if adj_elevation - current_elevation <= 1:
+            adj_cells.append(adj)
 
-            if 0 <= (adj_elevation - current_elevation) <= 1 or cell_val == SOURCE_CELL or adj_cell == DEST_CELL:
-                # if not invalid_elevation(current_elevation, adj_elevation):
-                neighbours.append(Node(row=adj_row, col=adj_col, value=adj_cell, elevation=adj_elevation, dist=1))
-
-    return neighbours
+    return adj_cells
 
 
-def dijktra(grid, start, end):
+def shortest_path(grid, source, destination):
     total_row = len(grid)
     total_col = len(grid[0])
-
-    heap = [(0, start)]  # cost from start node,end node
+    distance: defaultdict = defaultdict(lambda: math.inf)
+    distance[source] = 0
     visited = defaultdict(bool)
-    visited[start] = True
 
-    while heap:
-        (cost, u) = heapq.heappop(heap)
+    predecessor: defaultdict = defaultdict(lambda: None)
 
-        if (u.row, u.col) == end:
-            print("path", cost)
-            return cost
+    queue = deque()
+    queue.append(source)
+    visited[source] = True
 
-        for cell in find_valid_neighbour_cells(u, grid, total_row, total_col):
-            if visited[(cell.row, cell.col)]:
-                continue
-
-            visited[(cell.row, cell.col)] = True
-
-            next_item = cost + cell.dist
-            heapq.heappush(heap, (next_item, cell))
-
-
-def solve_part1(grid):
-    total_row = len(grid)
-    total_col = len(grid[0])
-    print(grid)
-    source = Node(row=0, col=0, value=SOURCE_CELL, dist=0)
-    dest = Node(0, 0, value=DEST_CELL, dist=-1)
-
-    print("row", total_row, total_col)
-    print(source)
-
-    for row in range(total_row):
-        for col in range(total_col):
-            if grid[row][col] == SOURCE_CELL:
-                source.row = row
-                source.col = col
-                source.elevation = CELL_ELEVATIONS[grid[row][col].lower()]
-            elif grid[row][col] == DEST_CELL:
-                dest.row = row
-                dest.col = col
-
-    queue = [source]
-    visited = defaultdict(bool)
-    prev = defaultdict(lambda: Node)
-
-    path = 0
     while queue:
-        current = queue.pop()
+        current = queue.popleft()
+        if current == destination:
+            p = find_predecessors(predecessor, destination)
+            print(p)
+            return distance[current]
 
-        if grid[current.row][current.col] == dest.value:
-            print("Found", current.dist, path)
-            return current.dist
-
-        print("<<<<< Current Node : >>>>>>> ", (current, grid[current.row][current.col]))
-
-        neighbour_cells = find_valid_neighbour_cells(current, grid, total_row, total_col)
-
-        print("Valid adjacent cells: ", neighbour_cells)
-
-        v = False
-        for cell in neighbour_cells:
-            if visited[(cell.row, cell.col)]:
+        for neighbour in get_neighbours(grid, current, total_row=total_row, total_col=total_col):
+            if visited.get(neighbour):
                 continue
 
-            queue.append(cell)
+            new_dist = distance[current] + 1
+            # if new_dist < distance[neighbour]:
+            distance[neighbour] = new_dist
+            visited[neighbour] = True
+            predecessor[neighbour] = current
 
-            visited[(cell.row, cell.col)] = True
-            prev[cell] = current
-            v = True
-
-        if v:
-            path += 1
+            queue.append(neighbour)
 
     return -1
 
 
-def solve_part2(inputs):
-    pass
+def solve_part1(grid):
+    source = destination = None
+    for i in range(len(grid)):
+        for j in range(len(grid[0])):
+            if source and destination:
+                break
+
+            if grid[i][j] == SOURCE_CELL and source is None:
+                source = (i, j)
+            if grid[i][j] == DEST_CELL and destination is None:
+                destination = (i, j)
+
+    print("source", source, grid[source[0]][source[1]])
+    print("destination", destination, grid[destination[0]][destination[1]])
+
+    res = shortest_path(grid, source, destination)
+
+    print(res)
+    return res
 
 
 def solve(file_name, part=1):
@@ -157,8 +125,8 @@ def solve(file_name, part=1):
 
         print("v", v)
         return v
-    return solve_part2(inputs)
+    # return solve_part2(inputs)
 
 
 if __name__ == "__main__":
-    solve("demo_input.txt", part=1)
+    solve("input.txt", part=1)

@@ -1,9 +1,9 @@
-from day11.solution import solve
+from day12.solution import solve
 
 
 def test_solves_part1():
-    assert solve("demo_input.txt", part=1) == 1
-    assert solve("input.txt", part=1) == 2
+    assert solve("demo_input.txt", part=1) == 31
+    assert solve("input.txt", part=1) == 437
 
 
 def test_solves_part2():
