@@ -66,21 +66,22 @@ ROCK = "#"
 AIR = "."
 SAND_AT_REST = "o"
 SAND_SOURCE = "+"
+SAND_SOURCE_POS = (0, 500)
 
 
 def get_neighbours(current, total_row, total_col):
     neighbours = []
     for direction in [DOWN, DOWN_LEFT, DOWN_RIGHT]:
         adj_row, adj_col = current[0] + direction[0], current[1] + direction[1]
-        if 0 <= adj_row < total_row and 0 <= adj_col < total_col:
-            neighbours.append((adj_row, adj_col))
+        # if 0 <= adj_row < total_row and 0 <= adj_col < total_col:
+        neighbours.append((adj_row, adj_col))
     return neighbours
 
 
 def find_next_move(grid, sand_pos, total_row, total_col):
     selected_cell = None
-
-    for adj in get_neighbours(sand_pos, total_row, total_col):
+    neighbours = get_neighbours(sand_pos, total_row, total_col)
+    for adj in neighbours:
         if grid[adj[0]][adj[1]] == AIR:
             selected_cell = adj
             break
@@ -88,35 +89,46 @@ def find_next_move(grid, sand_pos, total_row, total_col):
     return selected_cell
 
 
-def is_going_to_abyss(grid, sand_pos, total_row, total_col):
+def scan(grid, sand_pos, total_row, total_col):
     sand_row, sand_col = sand_pos[0], sand_pos[1]
 
+    steps = 0
+
     while sand_row < total_row and sand_col < total_col:
-        next_move = find_next_move(grid, sand_pos, total_row, total_col)
+        next_move = find_next_move(grid, (sand_row, sand_col), total_row, total_col)
+
         if next_move is None:
-            return False
+            if steps == 0:
+                return {"sand_source_blocked": True}
+
+            grid[sand_row][sand_col] = SAND_AT_REST
+            return {"sand_source_come_to_rest": True}
+
+        if next_move[0] > total_row:
+            return {"sand_source_going_to_abyss": True}
 
         sand_row, sand_col = next_move[0], next_move[1]
+        steps += 1
 
-    return True
+    return {"sand_source_going_to_abyss": True}
 
 
-def solve_part1(inputs):
-    grid, total_row, total_col = _initialize_grid(inputs)
-    _show_grid(grid)
-
+def solve_part1(grid, total_row, total_col):
     come_to_rest_count = 0
 
-    SAND_SOURCE_POS = (0, 500)
-
     while True:
-        is_abyss = is_going_to_abyss(grid, SAND_SOURCE_POS, total_row, total_col)
-        if is_abyss:
+        res = scan(grid, SAND_SOURCE_POS, total_row, total_col)
+        if res.get("sand_source_going_to_abyss"):
             break
 
-        come_to_rest_count += 1
+        if res.get("sand_source_come_to_rest"):
+            come_to_rest_count += 1
 
-    print("come to rest", come_to_rest_count)
+        print(f"Come to rest # {come_to_rest_count}")
+        _show_grid(grid)
+
+    print("Result", come_to_rest_count)
+    return come_to_rest_count
 
 
 def solve_part2(inputs):
@@ -125,11 +137,14 @@ def solve_part2(inputs):
 
 def solve(file_name, part=1):
     inputs = read_input(file_name)
-    if part == 1:
-        return solve_part1(inputs)
+    grid, total_row, total_col = _initialize_grid(inputs)
+    _show_grid(grid)
 
-    return solve_part2(inputs)
+    if part == 1:
+        return solve_part1(grid, total_row, total_col)
+
+    return solve_part1(grid, total_row + 2, total_col)
 
 
 if __name__ == "__main__":
-    solve("demo_input.txt", part=1)
+    solve("input.txt", part=1)
