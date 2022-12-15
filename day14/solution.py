@@ -28,9 +28,10 @@ def _show_grid(grid):
         print("".join(row))
 
 
-def _initialize_grid(inputs):
+def _initialize_grid(inputs, floor_row=0):
     paths, total_row, total_col = max_row_col(inputs)
-    grid = [["." for x in range(total_col + 1)] for y in range(total_row + 1)]
+    width = int(1.5 * total_col)
+    grid = [["." for _ in range(width)] for y in range(total_row + 1)]
     grid[0][500] = "+"
 
     for path in paths:
@@ -54,7 +55,15 @@ def _initialize_grid(inputs):
                     row_min += 1
             i += 1
 
-    return grid, total_row, total_col
+    i = 1
+    while i < floor_row:
+        grid.append(["." for _ in range(width)])
+        i += 1
+
+    if i == floor_row:
+        grid.append(["#" for _ in range(width)])
+
+    return grid, total_row + floor_row, total_col
 
 
 DOWN = (1, 0)
@@ -89,22 +98,21 @@ def find_next_move(grid, sand_pos, total_row, total_col):
     return selected_cell
 
 
-def scan(grid, sand_pos, total_row, total_col):
+def simulate_falling_sand(grid, sand_pos, total_row, total_col, blocked_by_sand=False):
     sand_row, sand_col = sand_pos[0], sand_pos[1]
-
     steps = 0
 
-    while sand_row < total_row and sand_col < total_col:
+    while sand_row < total_row:
         next_move = find_next_move(grid, (sand_row, sand_col), total_row, total_col)
-
         if next_move is None:
-            if steps == 0:
-                return {"sand_source_blocked": True}
-
             grid[sand_row][sand_col] = SAND_AT_REST
-            return {"sand_source_come_to_rest": True}
 
-        if next_move[0] > total_row:
+            res = {"sand_source_come_to_rest": True}
+            if steps == 0 and blocked_by_sand:
+                res["sand_source_blocked"] = True
+            return res
+
+        if not blocked_by_sand and next_move[0] > total_row:
             return {"sand_source_going_to_abyss": True}
 
         sand_row, sand_col = next_move[0], next_move[1]
@@ -113,11 +121,13 @@ def scan(grid, sand_pos, total_row, total_col):
     return {"sand_source_going_to_abyss": True}
 
 
-def solve_part1(grid, total_row, total_col):
+def solve_part1(inputs):
+    grid, total_row, total_col = _initialize_grid(inputs)
+    _show_grid(grid)
     come_to_rest_count = 0
 
     while True:
-        res = scan(grid, SAND_SOURCE_POS, total_row, total_col)
+        res = simulate_falling_sand(grid, SAND_SOURCE_POS, total_row, total_col)
         if res.get("sand_source_going_to_abyss"):
             break
 
@@ -127,24 +137,36 @@ def solve_part1(grid, total_row, total_col):
         print(f"Come to rest # {come_to_rest_count}")
         _show_grid(grid)
 
-    print("Result", come_to_rest_count)
     return come_to_rest_count
 
 
 def solve_part2(inputs):
-    pass
+    grid, total_row, total_col = _initialize_grid(inputs, floor_row=2)
+    _show_grid(grid)
+    come_to_rest_count = 0
+
+    while True:
+        res = simulate_falling_sand(grid, SAND_SOURCE_POS, total_row, total_col, blocked_by_sand=True)
+
+        if res.get("sand_source_come_to_rest"):
+            come_to_rest_count += 1
+
+        if res.get("sand_source_blocked"):
+            break
+
+        print(f"Come to rest # {come_to_rest_count}")
+        _show_grid(grid)
+
+    return come_to_rest_count
 
 
 def solve(file_name, part=1):
     inputs = read_input(file_name)
-    grid, total_row, total_col = _initialize_grid(inputs)
-    _show_grid(grid)
-
     if part == 1:
-        return solve_part1(grid, total_row, total_col)
+        return solve_part1(inputs)
 
-    return solve_part1(grid, total_row + 2, total_col)
+    return solve_part2(inputs)
 
 
 if __name__ == "__main__":
-    solve("input.txt", part=1)
+    solve("demo_input.txt", part=2)
