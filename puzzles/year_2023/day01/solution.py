@@ -88,8 +88,8 @@ def find_all(a_str, sub):
 def solve_part1(inputs):
     total = 0
     for line in inputs:
-        total += _sum_of_digits(line)
-    print(total)
+        total += find_calibration_value(line)
+    return total
 
 
 def solve_part2(inputs):
