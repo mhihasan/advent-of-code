@@ -1,6 +1,6 @@
 import pytest
 
-from template.solution import solve
+from .solution import solve
 
 
 @pytest.mark.skip
