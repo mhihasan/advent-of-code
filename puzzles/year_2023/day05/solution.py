@@ -2,7 +2,7 @@ import os
 import re
 import time
 
-from .demo import build_maps
+from .maps_builder import build_maps
 
 
 def read_input(file_name: str) -> list[str]:
