@@ -1,16 +1,4 @@
-import os
-
-
-def read_input(file_name: str) -> list[str]:
-    file_path = os.path.join(os.path.dirname(__file__), file_name)
-    with open(file_path, "r") as f:
-        return f.read().splitlines()
-
-
-def parse_input(inputs):
-    times = [i for i in inputs[0].split(": ")[1].strip().split(" ") if i]
-    distances = [i for i in inputs[1].split(": ")[1].strip().split(" ") if i]
-    return [(int(t), int(d)) for t, d in zip(times, distances)]
+from input_parser import parse_input
 
 
 def find_ways_to_beat(current_time, current_best):
@@ -18,6 +6,7 @@ def find_ways_to_beat(current_time, current_best):
 
     for i in range(2, current_time // 2 + 1):
         holding_button_duration, travel_duration = i, current_time - i
+
         if holding_button_duration * travel_duration > current_best:
             win_possibilities.add(holding_button_duration)
             win_possibilities.add(travel_duration)
@@ -39,8 +28,7 @@ def solve_part2(inputs):
 
 
 def solve(file_name, part=1):
-    inputs = read_input(file_name)
-    inputs = parse_input(inputs)
+    inputs = parse_input(file_name)
     if part == 1:
         return solve_part1(inputs)
 
@@ -48,4 +36,5 @@ def solve(file_name, part=1):
 
 
 if __name__ == "__main__":
-    solve("demo_input.txt", part=2)
+    a = solve("demo_input.txt", part=1)
+    print(a)
