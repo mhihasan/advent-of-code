@@ -1,5 +1,6 @@
 import math
 import os
+from collections import defaultdict
 
 
 def read_input(file_name: str) -> list[str]:
@@ -47,7 +48,7 @@ def solve_part2(inputs):
 
     current_nodes = {node for node in inputs["nodes"].keys() if node.endswith("A")}
     end_nodes = {node for node in inputs["nodes"].keys() if node.endswith("Z")}
-    steps = {node: 0 for node in current_nodes}
+    steps = defaultdict(int)
 
     for node in current_nodes:
         current_node = node
