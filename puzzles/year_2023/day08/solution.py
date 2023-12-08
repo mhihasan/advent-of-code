@@ -25,15 +25,6 @@ def parse_input(file_name):
     }
 
 
-def get_next_node(node, instruction):
-    if instruction == "L":
-        return node[0]
-    elif instruction == "R":
-        return node[1]
-    else:
-        raise Exception(f"Unknown instruction: {instruction}")
-
-
 def solve_part1(inputs):
     instructions = inputs["instructions"]
 
