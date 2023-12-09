@@ -1,4 +1,5 @@
 import os
+from itertools import pairwise
 
 
 def read_input(file_name: str) -> list[str]:
@@ -55,17 +56,29 @@ def deal_with_line(line, func):
     return func(a)
 
 
+def extrapolate(lst, direction="forward"):
+    if all([i == 0 for i in lst]):
+        return 0
+
+    diff = [b - a for a, b in pairwise(lst)]
+    if direction == "backward":
+        return lst[0] - extrapolate(diff, direction="backward")
+    return lst[-1] + extrapolate(diff, direction="forward")
+
+
 def solve_part1(inputs):
     s = 0
     for line in inputs:
-        s += deal_with_line(line, func=extrapolate_forward_value)
+        # s += deal_with_line(line, func=extrapolate_forward_value)
+        s += extrapolate(line, direction="forward")
     return s
 
 
 def solve_part2(inputs):
     s = 0
     for line in inputs:
-        s += deal_with_line(line, func=extrapolate_backward_value)
+        # s += deal_with_line(line, func=extrapolate_backward_value)
+        s += extrapolate(line, direction="backward")
     return s
 
 
@@ -78,4 +91,4 @@ def solve(file_name, part=1):
 
 
 if __name__ == "__main__":
-    solve("input.txt", part=2)
+    solve("demo_input.txt", part=1)
