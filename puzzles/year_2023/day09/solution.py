@@ -61,8 +61,10 @@ def extrapolate(lst, direction="forward"):
         return 0
 
     diff = [b - a for a, b in pairwise(lst)]
+
     if direction == "backward":
         return lst[0] - extrapolate(diff, direction="backward")
+
     return lst[-1] + extrapolate(diff, direction="forward")
 
 
