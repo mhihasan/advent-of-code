@@ -1,3 +1,6 @@
+"""
+Using Manhattan distance, find the sum of the shortest paths between all pairs of galaxies.
+"""
 import os
 from itertools import combinations
 
@@ -15,11 +18,12 @@ def parse_input(file_name):
 def calculate_shortest_path(start, end, expansion_times, empty_rows, empty_cols):
     row_min, row_max = min(start[0], end[0]), max(start[0], end[0])
     col_min, col_max = min(start[1], end[1]), max(start[1], end[1])
+    manhattan_distance = abs(start[0] - end[0]) + abs(start[1] - end[1])
 
-    vertical_distance = [expansion_times if r_index in empty_rows else 1 for r_index in range(row_min, row_max)]
-    horizontal_distance = [expansion_times if c_index in empty_cols else 1 for c_index in range(col_min, col_max)]
+    vertical_expansion = [expansion_times - 1 for r_index in range(row_min, row_max) if r_index in empty_rows]
+    horizontal_expansion = [expansion_times - 1 for c_index in range(col_min, col_max) if c_index in empty_cols]
 
-    return sum(vertical_distance) + sum(horizontal_distance)
+    return manhattan_distance + sum(vertical_expansion) + sum(horizontal_expansion)
 
 
 def sum_of_shortest_paths(grid, expansion_times=2):

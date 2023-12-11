@@ -1,3 +1,5 @@
+" Using Ray Casting, find the number of enclosed tiles."
+
 import os
 import re
 from collections import deque
