@@ -23,8 +23,8 @@ def count_arrangements(springs, groups):
     if len(groups) == 0:
         return "#" not in springs
 
-    # If there are more springs than the sum of all groups and the number of groups, then no arrangement is possible
-    if len(springs) < sum(groups) + len(groups) - 1:
+    # If there are more springs than the sum of all groups, then no arrangement is possible
+    if len(springs) < sum(groups):
         return 0
 
     # If the first spot is operational, then no arrangement is possible
