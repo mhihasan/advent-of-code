@@ -12,58 +12,110 @@ def parse_input(file_name):
     return inputs
 
 
-def fn(line):
-    """
-    ('O', 'O', '.', 'O', '.', 'O', '.', '.', '#', '#')
-    ('.', '.', '.', 'O', 'O', '.', '.', '.', '.', 'O')
-    ('.', 'O', '.', '.', '.', '#', 'O', '.', '.', 'O')
-    ('.', 'O', '.', '#', '.', '.', '.', '.', '.', '.')
-    ('.', '#', '.', 'O', '.', '.', '.', '.', '.', '.')
-    ('#', '.', '#', '.', '.', 'O', '#', '.', '#', '#')
-    ('.', '.', '#', '.', '.', '.', 'O', '.', '#', '.')
-    ('.', '.', '.', '.', 'O', '#', '.', 'O', '#', '.')
-    ('.', '.', '.', '.', '#', '.', '.', '.', '.', '.')
-    ('.', '#', '.', 'O', '.', '#', 'O', '.', '.', '.')
+UP = (-1, 0)
+DOWN = (1, 0)
+LEFT = (0, -1)
+RIGHT = (0, 1)
 
 
-     ('.', 'O', '.', '.', '.', '#', 'O', '.', '.', 'O')
-     ('.', '#', '.', 'O', '.', '#', 'O', '.', '.', '.')
-    """
+def tilt_common(grid, i, j, direction):
+    new_i = i
+    new_j = j
+    while True:
+        new_i_1 = new_i + direction[0]
+        new_j_1 = new_j + direction[1]
 
-    for i, c in enumerate(line):
-        if c == "O":
-            j = i
-            while j > 0:
-                if line[j - 1] != ".":
-                    break
+        if not (0 <= new_i_1 < len(grid) and 0 <= new_j_1 < len(grid[0])):
+            break
 
-                line[j - 1] = "O"
-                line[j] = "."
+        if grid[new_i_1][new_j_1] != ".":
+            break
 
-                j -= 1
+        grid[new_i_1][new_j_1] = "O"
+        grid[new_i][new_j] = "."
 
+        new_i = new_i_1
+        new_j = new_j_1
+
+    return grid
+
+
+def tilt(grid, direction):
+    if direction in [UP, LEFT]:
+        for i, line in enumerate(grid):
+            for j, c in enumerate(line):
+                if c != "O":
+                    continue
+
+                grid = tilt_common(grid, i, j, direction)
+
+    else:
+        for i in range(len(grid) - 1, -1, -1):
+            for j in range(len(grid[0]) - 1, -1, -1):
+                if grid[i][j] != "O":
+                    continue
+
+                grid = tilt_common(grid, i, j, direction)
+
+    return grid
+
+
+def calculate_total(grid):
     total = 0
-    length = len(line)
-    for i, c in enumerate(line):
-        if c == "O":
-            total += length - i
+    length = len(grid)
+    for i, line in enumerate(grid):
+        count_0 = len([c for c in line if c == "O"])
+        if count_0:
+            total += count_0 * (length - i)
     return total
 
 
-def solve_part1(inputs):
-    sm = 0
-    transposed = list(zip(*inputs))
-    for line in transposed:
+def solve_part1(grid):
+    grid = tilt([list(line) for line in grid], UP)
+    return calculate_total(grid)
+
+
+def print_grid(grid):
+    print("_____________________________________")
+    for line in grid:
         print(line)
-        n = fn(list(line))
-        sm += n
-        print(n)
-    print("total", sm)
-    return sm
+
+    print("_____________________________________\n")
+
+
+def run_cycle(grid):
+    grid = tilt(grid, UP)
+    # print_grid(grid)
+    grid = tilt(grid, LEFT)
+    # print_grid(grid)
+
+    grid = tilt(grid, DOWN)
+    # print_grid(grid)
+    grid = tilt(grid, RIGHT)
+    # print_grid(grid)
+    return grid
 
 
 def solve_part2(inputs):
-    pass
+    grid = [list(line) for line in inputs]
+    cycle_count = 1000000000
+    grid_cache = {}
+    for i in range(cycle_count):
+        grid = run_cycle(grid)
+        grid_str = "".join(["".join(line) for line in grid])
+        if grid_str in grid_cache:
+            cycle_length = i - grid_cache[grid_str]
+            # find grid that is being repeated
+            # find the remainder of the cycle_count / cycle_length
+            # run that many cycles
+            remainder = (cycle_count - grid_cache[grid_str] - i - 1) % cycle_length + grid_cache[grid_str]
+            for j in range(remainder):
+                grid = run_cycle(grid)
+            break
+
+        grid_cache[grid_str] = i
+
+    return calculate_total(grid)
 
 
 def solve(file_name, part=1):
@@ -76,4 +128,5 @@ def solve(file_name, part=1):
 
 if __name__ == "__main__":
     # fn(['.', '#', '.', 'O', '.', '#', 'O', '.', '.', '.'])
-    solve("input.txt", part=1)
+    r = solve("input.txt", part=2)
+    print("result", r)
